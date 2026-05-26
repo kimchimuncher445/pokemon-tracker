@@ -1,346 +1,341 @@
 import { useEffect, useState } from "react";
+import "./App.css";
 
 export default function App() {
   const [cards, setCards] = useState(() => {
-    const saved = localStorage.getItem("cards");
-    return saved ? JSON.parse(saved) : [];
+    return JSON.parse(localStorage.getItem("cards")) || [];
   });
 
-  const [split, setSplit] = useState(60);
+  const [partner, setPartner] = useState(() => {
+    return (
+      JSON.parse(localStorage.getItem("partner")) || {
+        capital: 6000,
+        meSplit: 60,
+        partnerSplit: 40
+      }
+    );
+  });
+
+  const [filter, setFilter] = useState("all");
 
   const [form, setForm] = useState({
     name: "",
     grade: "",
     totalPaid: "",
-    partnerPaid: ""
+    partnerPaid: "",
+    purchaseDate: ""
   });
+
+  const [sellCard, setSellCard] = useState(null);
+  const [sellForm, setSellForm] = useState({ price: "", date: "" });
 
   useEffect(() => {
     localStorage.setItem("cards", JSON.stringify(cards));
   }, [cards]);
 
-  function addCard() {
+  useEffect(() => {
+    localStorage.setItem("partner", JSON.stringify(partner));
+  }, [partner]);
+
+  const getGradeColor = (grade) => {
+    const g = Math.round(Number(grade));
+    if (g === 10) return "gold";
+    if (g === 9) return "silver";
+    return "bronze";
+  };
+
+  const normalizeGrade = (grade) => {
+    const g = Math.round(Number(grade));
+    return Math.min(10, Math.max(1, g));
+  };
+
+  const calcPartnerProfit = (card) => {
+    const profit = card.salePrice - card.totalPaid;
+    const ownership = card.partnerPaid / card.totalPaid;
+
+    return Math.round(
+      profit * ownership * (partner.partnerSplit / 100)
+    );
+  };
+
+  const calcMyProfit = (card) => {
+    const total = card.salePrice - card.totalPaid;
+    return total - calcPartnerProfit(card);
+  };
+
+  const soldCards = cards.filter((c) => c.status === "Sold");
+
+  const totalProfit = soldCards.reduce(
+    (a, c) => a + (c.salePrice - c.totalPaid),
+    0
+  );
+
+  const partnerProfitTotal = soldCards.reduce(
+    (a, c) => a + calcPartnerProfit(c),
+    0
+  );
+
+  const myProfitTotal = soldCards.reduce(
+    (a, c) => a + calcMyProfit(c),
+    0
+  );
+
+  const partnerUsedCapital = cards.reduce((sum, c) => {
+    if (c.status === "Sold") return sum;
+    return sum + c.partnerPaid;
+  }, 0);
+
+  const partnerAvailableCapital =
+    partner.capital - partnerUsedCapital;
+
+  const addCard = () => {
     if (!form.name || !form.totalPaid) return;
 
     setCards([
-      ...cards,
       {
         id: Date.now(),
         name: form.name,
-        grade: form.grade,
+        grade: normalizeGrade(form.grade),
         totalPaid: Number(form.totalPaid),
         partnerPaid: Number(form.partnerPaid || 0),
-        sold: false,
-        soldPrice: 0
-      }
+        purchaseDate: form.purchaseDate,
+        status: "Holding",
+        salePrice: 0,
+        saleDate: ""
+      },
+      ...cards
     ]);
 
-    setForm({ name: "", grade: "", totalPaid: "", partnerPaid: "" });
-  }
+    setForm({
+      name: "",
+      grade: "",
+      totalPaid: "",
+      partnerPaid: "",
+      purchaseDate: ""
+    });
+  };
 
-  function sellCard(id) {
-    const price = prompt("Enter selling price:");
-    if (!price) return;
+  const confirmSell = () => {
+    const salePrice = Number(sellForm.price);
 
-    setCards(
-      cards.map(c =>
-        c.id === id
-          ? { ...c, sold: true, soldPrice: Number(price) }
+    setCards((prev) =>
+      prev.map((c) =>
+        c.id === sellCard.id
+          ? {
+              ...c,
+              status: "Sold",
+              salePrice,
+              saleDate: sellForm.date
+            }
           : c
       )
     );
-  }
 
-  function deleteCard(id) {
-    setCards(cards.filter(c => c.id !== id));
-  }
+    setSellCard(null);
+  };
 
-  function profit(card) {
-    if (!card.sold) return 0;
-    return card.soldPrice - card.totalPaid;
-  }
+  const openSell = (card) => {
+    setSellCard(card);
+    setSellForm({ price: "", date: "" });
+  };
 
-  function splitProfit(card) {
-    const p = profit(card);
-    const partner = (split / 100) * p;
-    return {
-      partner,
-      you: p - partner
-    };
-  }
+  const deleteCard = (id) => {
+    setCards((prev) => prev.filter((c) => c.id !== id));
+  };
 
-  const totalProfit = cards.reduce((a, c) => a + profit(c), 0);
-  const partnerProfit = cards.reduce((a, c) => a + splitProfit(c).partner, 0);
-  const yourProfit = totalProfit - partnerProfit;
+  const filtered = cards.filter((c) => {
+    if (filter === "sold") return c.status === "Sold";
+    if (filter === "holding") return c.status !== "Sold";
+    return true;
+  });
 
   return (
-    <div style={styles.page}>
-      <div style={styles.container}>
+    <div className="app">
 
-        {/* HEADER */}
-        <div style={styles.header}>
-          <div>
-            <h1 style={styles.title}>Pokémon Tracker</h1>
-            <p style={styles.subtitle}>Clean investment dashboard</p>
-          </div>
+      <div className="sidebar">
+        <div className="appTitle">Pokémon Portfolio</div>
 
-          <div style={styles.splitBox}>
-            <span>Split %</span>
-            <input
-              value={split}
-              onChange={(e) => setSplit(Number(e.target.value))}
-              style={styles.splitInput}
-            />
-            <span>You {split}% / Partner {100 - split}%</span>
-          </div>
-        </div>
+        <input
+          placeholder="Card Name"
+          value={form.name}
+          onChange={(e) =>
+            setForm({ ...form, name: e.target.value })
+          }
+        />
 
-        {/* INPUT */}
-        <div style={styles.card}>
+        <input
+          placeholder="Grade (1-10)"
+          value={form.grade}
+          onChange={(e) =>
+            setForm({ ...form, grade: e.target.value })
+          }
+        />
+
+        <input
+          placeholder="Total Paid"
+          type="number"
+          value={form.totalPaid}
+          onChange={(e) =>
+            setForm({ ...form, totalPaid: e.target.value })
+          }
+        />
+
+        <input
+          placeholder="Partner Share"
+          type="number"
+          value={form.partnerPaid}
+          onChange={(e) =>
+            setForm({ ...form, partnerPaid: e.target.value })
+          }
+        />
+
+        <input
+          placeholder="Purchase Date"
+          value={form.purchaseDate}
+          onChange={(e) =>
+            setForm({ ...form, purchaseDate: e.target.value })
+          }
+        />
+
+        <button onClick={addCard}>Add Card</button>
+
+        {/* PARTNER SYSTEM + SPLIT */}
+        <div className="partnerBox">
+          <h3>Partner System</h3>
+
           <input
-            placeholder="Card name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            style={styles.input}
+            type="number"
+            value={partner.capital}
+            onChange={(e) =>
+              setPartner({
+                ...partner,
+                capital: Number(e.target.value)
+              })
+            }
           />
 
-          <input
-            placeholder="Grade"
-            value={form.grade}
-            onChange={(e) => setForm({ ...form, grade: e.target.value })}
-            style={styles.input}
-          />
+          {/* NEW SPLIT CONTROLS */}
+          <div className="splitBox">
+            <p>Profit Split</p>
 
-          <input
-            placeholder="Total paid"
-            value={form.totalPaid}
-            onChange={(e) => setForm({ ...form, totalPaid: e.target.value })}
-            style={styles.input}
-          />
-
-          <input
-            placeholder="Partner paid"
-            value={form.partnerPaid}
-            onChange={(e) => setForm({ ...form, partnerPaid: e.target.value })}
-            style={styles.input}
-          />
-
-          <button onClick={addCard} style={styles.button}>
-            Add
-          </button>
-        </div>
-
-        {/* SUMMARY */}
-        <div style={styles.stats}>
-          <div style={styles.stat}>
-            <span>Total Profit</span>
-            <b>${totalProfit.toFixed(2)}</b>
-          </div>
-
-          <div style={styles.stat}>
-            <span>Your Profit</span>
-            <b>${yourProfit.toFixed(2)}</b>
-          </div>
-
-          <div style={styles.stat}>
-            <span>Partner Profit</span>
-            <b>${partnerProfit.toFixed(2)}</b>
-          </div>
-        </div>
-
-        {/* TABLE */}
-        <div style={styles.table}>
-          <div style={styles.rowHeader}>
-            <span>Card</span>
-            <span>Grade</span>
-            <span>Paid</span>
-            <span>Partner</span>
-            <span>Status</span>
-            <span>Profit</span>
-            <span>Partner Profit</span>
-            <span></span>
-          </div>
-
-          {cards.map((c) => {
-            const p = profit(c);
-            const s = splitProfit(c);
-
-            return (
-              <div
-                key={c.id}
-                style={{
-                  ...styles.row,
-                  borderLeft: c.sold
-                    ? "4px solid #ef4444"
-                    : "4px solid #22c55e"
-                }}
-              >
-                <span>{c.name}</span>
-                <span>{c.grade || "—"}</span>
-                <span>${c.totalPaid}</span>
-                <span>${c.partnerPaid}</span>
-
-                <span>
-                  {c.sold ? (
-                    <span style={styles.sold}>SOLD</span>
-                  ) : (
-                    <button onClick={() => sellCard(c.id)} style={styles.sell}>
-                      Sell
-                    </button>
-                  )}
-                </span>
-
-                <span>{c.sold ? `$${p.toFixed(2)}` : "—"}</span>
-                <span>{c.sold ? `$${s.partner.toFixed(2)}` : "—"}</span>
-
-                <span onClick={() => deleteCard(c.id)} style={styles.trash}>
-                  🗑
-                </span>
+            <div className="splitRow">
+              <div>
+                <span>My %</span>
+                <input
+                  type="number"
+                  value={partner.meSplit}
+                  onChange={(e) =>
+                    setPartner({
+                      ...partner,
+                      meSplit: Number(e.target.value)
+                    })
+                  }
+                />
               </div>
-            );
-          })}
+
+              <div>
+                <span>Partner %</span>
+                <input
+                  type="number"
+                  value={partner.partnerSplit}
+                  onChange={(e) =>
+                    setPartner({
+                      ...partner,
+                      partnerSplit: Number(e.target.value)
+                    })
+                  }
+                />
+              </div>
+            </div>
+          </div>
+
+          <p>Capital: ${partner.capital}</p>
+          <p>Used: ${partnerUsedCapital}</p>
+          <p>Available: ${partnerAvailableCapital}</p>
+        </div>
+      </div>
+
+      <div className="main">
+
+        <div className="dashboard">
+          <div>Total Profit: ${totalProfit}</div>
+          <div>My Profit: ${myProfitTotal}</div>
+          <div>Partner Profit: ${partnerProfitTotal}</div>
+        </div>
+
+        <div className="filters">
+          <button onClick={() => setFilter("all")}>All</button>
+          <button onClick={() => setFilter("sold")}>Sold</button>
+          <button onClick={() => setFilter("holding")}>Holding</button>
+        </div>
+
+        <div className="grid">
+          {filtered.map((c) => (
+            <div key={c.id} className="card">
+
+              <div className={`gradeBadge ${getGradeColor(c.grade)}`}>
+                {c.grade}
+              </div>
+
+              <h3>{c.name}</h3>
+
+              <p>Purchase Date: {c.purchaseDate || "—"}</p>
+              <p>Paid: ${c.totalPaid}</p>
+              <p>Partner: ${c.partnerPaid}</p>
+
+              {c.status === "Sold" && (
+                <div className="profitBox">
+                  <h3>Total Profit: ${c.salePrice - c.totalPaid}</h3>
+                  <p>Sold For: ${c.salePrice}</p>
+                  <p>My Profit: ${c.salePrice - c.totalPaid - calcPartnerProfit(c)}</p>
+                  <p>Partner Profit: ${calcPartnerProfit(c)}</p>
+                  <p>Sale Date: {c.saleDate}</p>
+                </div>
+              )}
+
+              <div className="actions">
+                {c.status !== "Sold" && (
+                  <button onClick={() => openSell(c)}>Sell</button>
+                )}
+                <button onClick={() => deleteCard(c.id)}>🗑</button>
+              </div>
+
+            </div>
+          ))}
         </div>
 
       </div>
+
+      {sellCard && (
+        <div className="modal">
+          <div className="modalBox">
+
+            <h3>Sell Card</h3>
+
+            <input
+              placeholder="Sale Price"
+              type="number"
+              value={sellForm.price}
+              onChange={(e) =>
+                setSellForm({ ...sellForm, price: e.target.value })
+              }
+            />
+
+            <input
+              placeholder="Sale Date"
+              value={sellForm.date}
+              onChange={(e) =>
+                setSellForm({ ...sellForm, date: e.target.value })
+              }
+            />
+
+            <button onClick={confirmSell}>Confirm</button>
+            <button onClick={() => setSellCard(null)}>Cancel</button>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
-
-const styles = {
-  page: {
-    minHeight: "100vh",
-    width: "100%",
-    background: "#0b1220",
-    color: "white",
-    fontFamily: "Arial",
-    padding: 20,
-    boxSizing: "border-box"
-  },
-
-  container: {
-    maxWidth: "1100px",
-    margin: "0 auto"
-  },
-
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-    flexWrap: "wrap",
-    gap: 10
-  },
-
-  title: {
-    margin: 0,
-    fontSize: 26
-  },
-
-  subtitle: {
-    margin: 0,
-    opacity: 0.6,
-    fontSize: 12
-  },
-
-  splitBox: {
-    display: "flex",
-    gap: 10,
-    alignItems: "center",
-    background: "#111827",
-    padding: 10,
-    borderRadius: 10
-  },
-
-  splitInput: {
-    width: 60,
-    padding: 5,
-    borderRadius: 6,
-    border: "none"
-  },
-
-  card: {
-    display: "flex",
-    gap: 10,
-    flexWrap: "wrap",
-    background: "#111827",
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 15
-  },
-
-  input: {
-    padding: 8,
-    borderRadius: 6,
-    border: "none"
-  },
-
-  button: {
-    background: "#3b82f6",
-    border: "none",
-    padding: "8px 12px",
-    borderRadius: 6,
-    cursor: "pointer"
-  },
-
-  stats: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: 10,
-    marginBottom: 20
-  },
-
-  stat: {
-    background: "#111827",
-    padding: 12,
-    borderRadius: 10
-  },
-
-  table: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 6
-  },
-
-  rowHeader: {
-    display: "grid",
-    gridTemplateColumns:
-      "2fr 1fr 1fr 1fr 1fr 1fr 1fr 40px",
-    background: "#1f2937",
-    padding: 10,
-    borderRadius: 10,
-    fontWeight: "bold",
-    fontSize: 12
-  },
-
-  row: {
-    display: "grid",
-    gridTemplateColumns:
-      "2fr 1fr 1fr 1fr 1fr 1fr 1fr 40px",
-    padding: 10,
-    borderRadius: 10,
-    background: "#0f172a",
-    alignItems: "center"
-  },
-
-  sell: {
-    background: "#22c55e",
-    border: "none",
-    padding: "5px 8px",
-    borderRadius: 6,
-    cursor: "pointer"
-  },
-
-  sold: {
-    background: "#ef4444",
-    padding: "3px 8px",
-    borderRadius: 999,
-    fontSize: 11
-  },
-
-  trash: {
-    cursor: "pointer",
-    color: "#f87171",
-    fontSize: 18,
-    textAlign: "center"
-  }
-};

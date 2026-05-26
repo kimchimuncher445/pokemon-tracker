@@ -1,130 +1,242 @@
-import { useState } from "react";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-export default function App() {
-  const [cards, setCards] = useState([]);
-  const [form, setForm] = useState({
-    name: "",
-    set: "",
-    purchasePrice: "",
-    currentPrice: "",
-    condition: ""
-  });
+* {
+  box-sizing: border-box;
+}
 
-  function handleChange(e) {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-  }
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  color: white;
+  overflow-x: hidden;
 
-  function addCard() {
-    if (!form.name) return;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(99,102,241,0.14), transparent 45%),
+    radial-gradient(circle at 80% 30%, rgba(16,185,129,0.10), transparent 50%),
+    linear-gradient(180deg, #050816, #0b1020);
+}
 
-    setCards([
-      ...cards,
-      {
-        id: Date.now(),
-        name: form.name,
-        set: form.set,
-        condition: form.condition,
-        purchasePrice: Number(form.purchasePrice || 0),
-        currentPrice: Number(form.currentPrice || 0)
-      }
-    ]);
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
+  opacity: 0.04;
+}
 
-    setForm({
-      name: "",
-      set: "",
-      purchasePrice: "",
-      currentPrice: "",
-      condition: ""
-    });
-  }
+.app {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
 
-  function deleteCard(id) {
-    setCards(cards.filter(card => card.id !== id));
-  }
+/* SIDEBAR */
+.sidebar {
+  width: 290px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 
-  const totalInvested = cards.reduce((sum, c) => sum + c.purchasePrice, 0);
-  const totalValue = cards.reduce((sum, c) => sum + c.currentPrice, 0);
-  const profit = totalValue - totalInvested;
+  background: rgba(31, 41, 55, 0.45);
+  backdrop-filter: blur(14px);
 
-  return (
-    <div style={{ padding: "20px", fontFamily: "Arial" }}>
-      <h1>Pokémon Investment Tracker</h1>
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
 
-      <div style={{ marginBottom: "20px" }}>
-        <input
-          name="name"
-          placeholder="Card Name"
-          value={form.name}
-          onChange={handleChange}
-        />
-        <input
-          name="set"
-          placeholder="Set"
-          value={form.set}
-          onChange={handleChange}
-        />
-        <input
-          name="condition"
-          placeholder="Condition"
-          value={form.condition}
-          onChange={handleChange}
-        />
-        <input
-          name="purchasePrice"
-          placeholder="Purchase Price"
-          value={form.purchasePrice}
-          onChange={handleChange}
-        />
-        <input
-          name="currentPrice"
-          placeholder="Current Price"
-          value={form.currentPrice}
-          onChange={handleChange}
-        />
+/* TITLE */
+.appTitle {
+  font-size: 20px;
+  font-weight: 700;
+  padding: 10px 12px;
+  border-radius: 10px;
 
-        <button onClick={addCard}>Add Card</button>
-      </div>
+  background: linear-gradient(135deg, rgba(96,165,250,0.15), rgba(167,139,250,0.15));
+  border: 1px solid rgba(255,255,255,0.08);
+}
 
-      <div style={{ marginBottom: "20px" }}>
-        <h3>Total Invested: ${totalInvested}</h3>
-        <h3>Total Value: ${totalValue}</h3>
-        <h3>Profit: ${profit}</h3>
-      </div>
+/* INPUTS */
+.sidebar input {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.25);
+  color: white;
+}
 
-      <table border="1" cellPadding="8" width="100%">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Set</th>
-            <th>Condition</th>
-            <th>Buy Price</th>
-            <th>Current Price</th>
-            <th>Profit</th>
-            <th>Action</th>
-          </tr>
-        </thead>
+/* BUTTONS */
+button {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #374151, #111827);
+  color: white;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
 
-        <tbody>
-          {cards.map(card => (
-            <tr key={card.id}>
-              <td>{card.name}</td>
-              <td>{card.set}</td>
-              <td>{card.condition}</td>
-              <td>${card.purchasePrice}</td>
-              <td>${card.currentPrice}</td>
-              <td>${card.currentPrice - card.purchasePrice}</td>
-              <td>
-                <button onClick={() => deleteCard(card.id)}>
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 18px rgba(99,102,241,0.25);
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* DASHBOARD */
+.dashboard {
+  display: flex;
+  gap: 15px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+/* CARD */
+.card {
+  background: rgba(31, 41, 55, 0.55);
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  padding: 15px;
+
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: 0.25s ease;
+
+  padding-top: 40px;
+}
+
+.card:hover {
+  transform: translateY(-7px);
+  border: 1px solid transparent;
+  background:
+    linear-gradient(rgba(31,41,55,0.9), rgba(31,41,55,0.9)) padding-box,
+    linear-gradient(135deg, #60a5fa, #a78bfa, #34d399) border-box;
+  box-shadow: 0 0 25px rgba(99,102,241,0.2);
+}
+
+/* TITLE FIX */
+.card h3 {
+  margin-top: 0;
+  margin-right: 40px;
+  word-break: break-word;
+}
+
+/* BADGES */
+.gradeBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-weight: bold;
+  color: black;
+}
+
+.gold {
+  background: linear-gradient(145deg, #ffd700, #ffb300);
+}
+
+.silver {
+  background: linear-gradient(145deg, #d1d5db, #9ca3af);
+}
+
+.bronze {
+  background: linear-gradient(145deg, #cd7f32, #b45309);
+}
+
+/* PROFIT BOX */
+.profitBox {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.25);
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalBox {
+  background: #1f2937;
+  padding: 20px;
+  border-radius: 12px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ===================== */
+/* CLEAN PARTNER SPLIT UI */
+/* ===================== */
+
+.splitBox {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.06);
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.splitBox p {
+  margin: 0;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.splitRow {
+  display: flex;
+  gap: 10px;
+}
+
+.splitRow div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.splitRow span {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.splitRow input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+
+  color: white;
+  outline: none;
+}
+
+.splitRow input:focus {
+  border: 1px solid rgba(99,102,241,0.6);
+  box-shadow: 0 0 10px rgba(99,102,241,0.25);
 }
