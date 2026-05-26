@@ -181,7 +181,7 @@ export default function App() {
         />
 
         <input
-          placeholder="Partner Share"
+          placeholder="Partner Paid"
           type="number"
           value={form.partnerPaid}
           onChange={(e) =>
@@ -220,7 +220,7 @@ export default function App() {
 
             <div className="splitRow">
               <div>
-                <span>My %</span>
+                <span>Me %</span>
                 <input
                   type="number"
                   value={partner.meSplit}
@@ -269,9 +269,23 @@ export default function App() {
           <button onClick={() => setFilter("holding")}>Holding</button>
         </div>
 
-        <div className="grid">
-          {filtered.map((c) => (
-            <div key={c.id} className="card">
+<div className="grid">
+  {filtered.map((c) => (
+    <div
+      key={c.id}
+      className="card"
+      style={{
+        border:
+          c.status === "Sold"
+            ? "2px solid rgba(239,68,68,0.75)"
+            : "2px solid rgba(34,197,94,0.75)",
+
+        boxShadow:
+          c.status === "Sold"
+            ? "0 0 20px rgba(239,68,68,0.18)"
+            : "0 0 20px rgba(34,197,94,0.18)"
+      }}
+    >
 
               <div className={`gradeBadge ${getGradeColor(c.grade)}`}>
                 {c.grade}
