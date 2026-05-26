@@ -1,0 +1,130 @@
+import { useState } from "react";
+
+export default function App() {
+  const [cards, setCards] = useState([]);
+  const [form, setForm] = useState({
+    name: "",
+    set: "",
+    purchasePrice: "",
+    currentPrice: "",
+    condition: ""
+  });
+
+  function handleChange(e) {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  }
+
+  function addCard() {
+    if (!form.name) return;
+
+    setCards([
+      ...cards,
+      {
+        id: Date.now(),
+        name: form.name,
+        set: form.set,
+        condition: form.condition,
+        purchasePrice: Number(form.purchasePrice || 0),
+        currentPrice: Number(form.currentPrice || 0)
+      }
+    ]);
+
+    setForm({
+      name: "",
+      set: "",
+      purchasePrice: "",
+      currentPrice: "",
+      condition: ""
+    });
+  }
+
+  function deleteCard(id) {
+    setCards(cards.filter(card => card.id !== id));
+  }
+
+  const totalInvested = cards.reduce((sum, c) => sum + c.purchasePrice, 0);
+  const totalValue = cards.reduce((sum, c) => sum + c.currentPrice, 0);
+  const profit = totalValue - totalInvested;
+
+  return (
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h1>Pokémon Investment Tracker</h1>
+
+      <div style={{ marginBottom: "20px" }}>
+        <input
+          name="name"
+          placeholder="Card Name"
+          value={form.name}
+          onChange={handleChange}
+        />
+        <input
+          name="set"
+          placeholder="Set"
+          value={form.set}
+          onChange={handleChange}
+        />
+        <input
+          name="condition"
+          placeholder="Condition"
+          value={form.condition}
+          onChange={handleChange}
+        />
+        <input
+          name="purchasePrice"
+          placeholder="Purchase Price"
+          value={form.purchasePrice}
+          onChange={handleChange}
+        />
+        <input
+          name="currentPrice"
+          placeholder="Current Price"
+          value={form.currentPrice}
+          onChange={handleChange}
+        />
+
+        <button onClick={addCard}>Add Card</button>
+      </div>
+
+      <div style={{ marginBottom: "20px" }}>
+        <h3>Total Invested: ${totalInvested}</h3>
+        <h3>Total Value: ${totalValue}</h3>
+        <h3>Profit: ${profit}</h3>
+      </div>
+
+      <table border="1" cellPadding="8" width="100%">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Set</th>
+            <th>Condition</th>
+            <th>Buy Price</th>
+            <th>Current Price</th>
+            <th>Profit</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {cards.map(card => (
+            <tr key={card.id}>
+              <td>{card.name}</td>
+              <td>{card.set}</td>
+              <td>{card.condition}</td>
+              <td>${card.purchasePrice}</td>
+              <td>${card.currentPrice}</td>
+              <td>${card.currentPrice - card.purchasePrice}</td>
+              <td>
+                <button onClick={() => deleteCard(card.id)}>
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
