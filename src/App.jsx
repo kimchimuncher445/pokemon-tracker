@@ -21,6 +21,18 @@ const formatNumber = (num) => {
   return Number(num || 0).toLocaleString("en-US");
 };
 
+const formatMoney = (num) => {
+  const value = Number(num || 0);
+  const abs = Math.abs(value).toLocaleString("en-US");
+
+  return value < 0 ? `-$${abs}` : `$${abs}`;
+};
+
+const parseDate = (date) => {
+  if (!date) return 0;
+  return new Date(date).getTime() || 0;
+};
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -38,7 +50,7 @@ export default function App() {
   const [profileOpen, setProfileOpen] = useState(false);
 
   const [filter, setFilter] = useState("all");
-
+const [sortBy, setSortBy] = useState("none");
   const [form, setForm] = useState({
     name: "",
     grade: "",
@@ -163,36 +175,36 @@ export default function App() {
     setEditingUsername(false);
   };
 
-const changeBackground = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+  const changeBackground = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const img = new Image();
-  const reader = new FileReader();
+    const img = new Image();
+    const reader = new FileReader();
 
-  reader.onload = () => {
-    img.src = reader.result;
+    reader.onload = () => {
+      img.src = reader.result;
+    };
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+
+      const maxWidth = 1400;
+      const scale = Math.min(maxWidth / img.width, 1);
+
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      const compressedImage = canvas.toDataURL("image/jpeg", 0.55);
+
+      setBackgroundImage(compressedImage);
+    };
+
+    reader.readAsDataURL(file);
   };
-
-  img.onload = () => {
-    const canvas = document.createElement("canvas");
-
-    const maxWidth = 1400;
-    const scale = Math.min(maxWidth / img.width, 1);
-
-    canvas.width = img.width * scale;
-    canvas.height = img.height * scale;
-
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-    const compressedImage = canvas.toDataURL("image/jpeg", 0.55);
-
-    setBackgroundImage(compressedImage);
-  };
-
-  reader.readAsDataURL(file);
-};
 
   const removeBackground = () => {
     setBackgroundImage("");
@@ -351,10 +363,30 @@ const changeBackground = (e) => {
     setCards((prev) => prev.filter((c) => c.id !== id));
   };
 
-  const filteredCards = cards.filter((card) => {
+  const filteredCards = [...cards]
+  .filter((card) => {
+    if (sortBy === "saleOldest" || sortBy === "saleNewest") {
+      return card.status === "Sold";
+    }
+
     if (filter === "sold") return card.status === "Sold";
     if (filter === "holding") return card.status !== "Sold";
     return true;
+  })
+  .sort((a, b) => {
+    const profitA = a.status === "Sold" ? a.salePrice - a.totalPaid : 0;
+    const profitB = b.status === "Sold" ? b.salePrice - b.totalPaid : 0;
+
+    if (sortBy === "profitHigh") return profitB - profitA;
+    if (sortBy === "profitLow") return profitA - profitB;
+    if (sortBy === "valueHigh") return b.totalPaid - a.totalPaid;
+if (sortBy === "valueLow") return a.totalPaid - b.totalPaid;
+    if (sortBy === "purchaseOldest") return parseDate(a.purchaseDate) - parseDate(b.purchaseDate);
+    if (sortBy === "purchaseNewest") return parseDate(b.purchaseDate) - parseDate(a.purchaseDate);
+    if (sortBy === "saleOldest") return parseDate(a.saleDate) - parseDate(b.saleDate);
+    if (sortBy === "saleNewest") return parseDate(b.saleDate) - parseDate(a.saleDate);
+
+    return 0;
   });
 
   if (!user) {
@@ -556,9 +588,18 @@ const changeBackground = (e) => {
           </div>
 
           <div className="partnerStats">
-            <p>Capital: ${formatNumber(partner.capital)}</p>
-            <p>Used: ${formatNumber(partnerUsedCapital)}</p>
-            <p>Available: ${formatNumber(partnerAvailableCapital)}</p>
+            <p>
+              <span className="labelText">Capital:</span> $
+              {formatNumber(partner.capital)}
+            </p>
+            <p>
+              <span className="labelText">Used:</span> $
+              {formatNumber(partnerUsedCapital)}
+            </p>
+            <p>
+              <span className="labelText">Available:</span> $
+              {formatNumber(partnerAvailableCapital)}
+            </p>
           </div>
         </div>
 
@@ -594,16 +635,47 @@ const changeBackground = (e) => {
           </div>
         </div>
 
-        <div className="filters">
-          <button onClick={() => setFilter("all")}>All</button>
-          <button className="soldFilter" onClick={() => setFilter("sold")}>
-            Sold
-          </button>
-          <button className="holdingFilter" onClick={() => setFilter("holding")}>
-            Holding
-          </button>
-        </div>
+       <div className="filters">
+  <button
+    className={filter === "all" ? "activeFilter" : ""}
+    onClick={() => setFilter("all")}
+  >
+    All
+  </button>
 
+  <button
+    className={`soldFilter ${filter === "sold" ? "activeSoldFilter" : ""}`}
+    onClick={() => setFilter("sold")}
+  >
+    Sold
+  </button>
+
+  <button
+    className={`holdingFilter ${
+      filter === "holding" ? "activeHoldingFilter" : ""
+    }`}
+    onClick={() => setFilter("holding")}
+  >
+    Holding
+  </button>
+</div>
+<div className="sortBox">
+  <span>Sort by</span>
+
+  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+    <option value="none">Default</option>
+  <option value="valueHigh">Value: Highest to Lowest</option>
+<option value="valueLow">Value: Lowest to Highest</option>
+
+<option value="profitHigh">Profit: Greatest to Least</option>
+<option value="profitLow">Profit: Least to Greatest</option>
+    <option value="purchaseOldest">Purchase Date: Earliest to Latest</option>
+    <option value="purchaseNewest">Purchase Date: Latest to Earliest</option>
+    <option value="saleOldest">Sale Date: Earliest to Latest</option>
+    <option value="saleNewest">Sale Date: Latest to Earliest</option>
+  
+  </select>
+</div>
         <div className="grid">
           {filteredCards.map((card) => (
             <div
@@ -622,30 +694,63 @@ const changeBackground = (e) => {
 
               <h3 className="cardName">{card.name}</h3>
 
-              <p>Purchase Date: {card.purchaseDate || "—"}</p>
-              <p>Paid: ${formatNumber(card.totalPaid)}</p>
-              <p>Partner: ${formatNumber(card.partnerPaid)}</p>
+              <p>
+                <span className="labelText">Purchase Date:</span>{" "}
+                {card.purchaseDate || "—"}
+              </p>
+
+              <p>
+                <span className="labelText">Paid:</span> $
+                {formatNumber(card.totalPaid)}
+              </p>
+
+              {Number(card.partnerPaid || 0) > 0 && (
+                <p>
+                  <span className="labelText">Partner:</span> $
+                  {formatNumber(card.partnerPaid)}
+                </p>
+              )}
 
               {card.status === "Sold" && (
-                <div className="profitBox hoverLift">
-<>
-  <div
-    className={`profitIndicator ${
-      card.salePrice - card.totalPaid >= 0
-        ? "profitPositive"
-        : "profitNegative"
-    }`}
-  />
+                <div
+                  className={`profitBox hoverLift ${
+                    card.salePrice - card.totalPaid >= 0
+                      ? "profitBoxPositive"
+                      : "profitBoxNegative"
+                  }`}
+                >
+                  <div
+                    className={`profitIndicator ${
+                      card.salePrice - card.totalPaid >= 0
+                        ? "profitPositive"
+                        : "profitNegative"
+                    }`}
+                  />
 
-  <h3>
-    Total Profit: $
-    {formatNumber(card.salePrice - card.totalPaid)}
-  </h3>
-</>
-                  <p>Sold For: ${formatNumber(card.salePrice)}</p>
-                  <p>My Profit: ${formatNumber(calcMyProfit(card))}</p>
-                  <p>Partner Profit: ${formatNumber(calcPartnerProfit(card))}</p>
-                  <p>Sale Date: {card.saleDate || "—"}</p>
+                  <h3>
+  <span className="labelText">Total Profit:</span>{" "}
+  {formatMoney(card.salePrice - card.totalPaid)}
+</h3>
+                  <p>
+                    <span className="labelText">Sold For:</span> $
+                    {formatNumber(card.salePrice)}
+                  </p>
+
+             <p>
+  <span className="labelText">My Profit:</span>{" "}
+  {formatMoney(calcMyProfit(card))}
+</p>
+                  {Number(card.partnerPaid || 0) > 0 && (
+                    <p>
+  <span className="labelText">Partner Profit:</span>{" "}
+  {formatMoney(calcPartnerProfit(card))}
+</p>
+                  )}
+
+                  <p>
+                    <span className="labelText">Sale Date:</span>{" "}
+                    {card.saleDate || "—"}
+                  </p>
                 </div>
               )}
 

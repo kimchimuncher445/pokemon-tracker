@@ -900,3 +900,105 @@ body {
     0 0 10px rgba(239,68,68,.4),
     0 0 20px rgba(239,68,68,.2);
 }
+/* Easier card readability */
+.card p,
+.profitBox p {
+  font-weight: 500;
+  opacity: 0.92;
+}
+
+.labelText {
+  font-weight: 800;
+  opacity: 0.72;
+}
+
+.cardName {
+  font-weight: 850;
+}
+
+.profitBox h3 {
+  font-weight: 900;
+}
+
+/* Softer sell button */
+.sellBtn {
+  background: rgba(59, 130, 246, 0.82) !important;
+}
+
+.sellBtn:hover {
+  background: rgba(96, 165, 250, 0.95) !important;
+  box-shadow: 0 0 12px rgba(96, 165, 250, 0.28);
+}
+.card p,
+.profitBox p {
+  font-weight: 500;
+  opacity: 0.94;
+}
+
+.labelText {
+  font-weight: 750;
+  color: rgb(255, 255, 255);
+  letter-spacing: 0.3px;
+}
+.profitBox h3 {
+  font-weight: 500;
+}
+
+.profitBox h3 .labelText {
+  font-weight: 900;
+}
+/* Softer PSA 10 glow */
+.gold,
+.glow {
+  box-shadow:
+    0 0 10px rgba(255, 215, 0, 0.55),
+    0 0 18px rgba(255, 215, 0, 0.22),
+    inset 0 1px 4px rgba(255,255,255,0.55) !important;
+}
+
+/* Sort dropdown */
+.sortBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.sortBox span {
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.78);
+}
+
+.sortBox select {
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.85);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.14);
+  outline: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.sortBox select:hover {
+  border-color: rgba(147,197,253,0.38);
+  box-shadow: 0 0 16px rgba(147,197,253,0.12);
+}
+.activeFilter {
+  background: rgba(147, 197, 253, 0.85) !important;
+  border-color: rgba(147, 197, 253, 1) !important;
+  box-shadow: 0 0 14px rgba(147, 197, 253, 0.28);
+}
+
+.activeSoldFilter {
+  background: rgba(239, 68, 68, 0.85) !important;
+  border-color: rgba(239, 68, 68, 1) !important;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.28);
+}
+
+.activeHoldingFilter {
+  background: rgba(34, 197, 94, 0.85) !important;
+  border-color: rgba(34, 197, 94, 1) !important;
+  box-shadow: 0 0 14px rgba(34, 197, 94, 0.28);
+}
