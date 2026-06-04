@@ -628,7 +628,20 @@ const changeBackground = (e) => {
 
               {card.status === "Sold" && (
                 <div className="profitBox hoverLift">
-                  <h3>Total Profit: ${formatNumber(card.salePrice - card.totalPaid)}</h3>
+<>
+  <div
+    className={`profitIndicator ${
+      card.salePrice - card.totalPaid >= 0
+        ? "profitPositive"
+        : "profitNegative"
+    }`}
+  />
+
+  <h3>
+    Total Profit: $
+    {formatNumber(card.salePrice - card.totalPaid)}
+  </h3>
+</>
                   <p>Sold For: ${formatNumber(card.salePrice)}</p>
                   <p>My Profit: ${formatNumber(calcMyProfit(card))}</p>
                   <p>Partner Profit: ${formatNumber(calcPartnerProfit(card))}</p>

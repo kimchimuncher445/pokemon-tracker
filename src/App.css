@@ -822,3 +822,81 @@ body {
   background: rgba(34, 197, 94, 0.85) !important;
   border-color: rgba(34, 197, 94, 0.95) !important;
 }
+/* FIX CARD GRID UI */
+
+.grid {
+  align-items: stretch;
+}
+
+.card {
+  min-height: 315px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.cardName {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profitBox {
+  margin-top: 14px;
+  min-height: 145px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.actions {
+  margin-top: auto;
+}
+
+/* If card is unsold, reserve space so layout matches sold cards */
+.card:not(.soldCard)::after {
+  content: "";
+  flex: 1;
+  min-height: 145px;
+}
+
+/* Cleaner spacing */
+.card p {
+  line-height: 1.25;
+}
+
+.card h3 {
+  line-height: 1.2;
+}
+.profitIndicator {
+  height: 6px;
+  width: 100%;
+  border-radius: 999px;
+  margin-bottom: 14px;
+  transition: all 0.25s ease;
+}
+
+.profitPositive {
+  background: linear-gradient(
+    90deg,
+    rgba(34,197,94,.6),
+    rgba(34,197,94,1)
+  );
+
+  box-shadow:
+    0 0 10px rgba(34,197,94,.4),
+    0 0 20px rgba(34,197,94,.2);
+}
+
+.profitNegative {
+  background: linear-gradient(
+    90deg,
+    rgba(239,68,68,.6),
+    rgba(239,68,68,1)
+  );
+
+  box-shadow:
+    0 0 10px rgba(239,68,68,.4),
+    0 0 20px rgba(239,68,68,.2);
+}
