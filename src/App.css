@@ -1,242 +1,824 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
 * {
   box-sizing: border-box;
 }
 
-body {
+html,
+body,
+#root {
   margin: 0;
-  font-family: "Inter", sans-serif;
-  color: white;
-  overflow-x: hidden;
-
-  background:
-    radial-gradient(circle at 20% 20%, rgba(99,102,241,0.14), transparent 45%),
-    radial-gradient(circle at 80% 30%, rgba(16,185,129,0.10), transparent 50%),
-    linear-gradient(180deg, #050816, #0b1020);
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
-  opacity: 0.04;
+body {
+  font-family: Arial, sans-serif;
+  background: #07101f;
+  color: white;
+  overflow: hidden;
+}
+
+.app,
+.authApp {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: #07101f;
 }
 
 .app {
-  display: flex;
-  height: 100vh;
-  width: 100%;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
 }
 
-/* SIDEBAR */
+.app::before,
+.authApp::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(3px);
+  transform: scale(1.03);
+  opacity: 0.65;
+  z-index: 0;
+}
+
+.authApp::before {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(147, 197, 253, 0.36), transparent 32%),
+    radial-gradient(circle at 82% 24%, rgba(196, 181, 253, 0.32), transparent 34%),
+    radial-gradient(circle at 50% 85%, rgba(168, 85, 247, 0.24), transparent 32%),
+    linear-gradient(135deg, #020617, #07101f, #0f172a);
+}
+
+.app::after,
+.authApp::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 8, 20, 0.5);
+  z-index: 1;
+}
+
+.sidebar,
+.main,
+.modal {
+  position: relative;
+  z-index: 2;
+}
+
 .sidebar {
-  width: 290px;
-  padding: 20px;
+  width: 320px;
+  height: 100vh;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-
-  background: rgba(31, 41, 55, 0.45);
-  backdrop-filter: blur(14px);
-
-  border-right: 1px solid rgba(255,255,255,0.06);
-}
-
-/* TITLE */
-.appTitle {
-  font-size: 20px;
-  font-weight: 700;
-  padding: 10px 12px;
-  border-radius: 10px;
-
-  background: linear-gradient(135deg, rgba(96,165,250,0.15), rgba(167,139,250,0.15));
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-/* INPUTS */
-.sidebar input {
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(0,0,0,0.25);
-  color: white;
-}
-
-/* BUTTONS */
-button {
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  background: linear-gradient(135deg, #374151, #111827);
-  color: white;
-  cursor: pointer;
-  transition: 0.25s ease;
-}
-
-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 0 18px rgba(99,102,241,0.25);
-}
-
-/* MAIN */
-.main {
-  flex: 1;
-  padding: 20px;
+  background: rgba(10, 18, 35, 0.76);
+  backdrop-filter: blur(16px);
+  border-right: 1px solid rgba(255,255,255,0.12);
   overflow-y: auto;
 }
 
-/* DASHBOARD */
-.dashboard {
-  display: flex;
-  gap: 15px;
-  font-weight: 600;
-  margin-bottom: 15px;
-}
-
-/* GRID */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 15px;
-}
-
-/* CARD */
-.card {
-  background: rgba(31, 41, 55, 0.55);
-  backdrop-filter: blur(12px);
+.appTitle {
+  font-size: 22px;
+  font-weight: 900;
+  text-align: center;
+  padding: 12px;
   border-radius: 14px;
-  padding: 15px;
-
-  position: relative;
-  border: 1px solid rgba(255,255,255,0.06);
-  transition: 0.25s ease;
-
-  padding-top: 40px;
+  background: rgba(255,255,255,0.08);
+  margin-bottom: 6px;
 }
 
-.card:hover {
-  transform: translateY(-7px);
-  border: 1px solid transparent;
-  background:
-    linear-gradient(rgba(31,41,55,0.9), rgba(31,41,55,0.9)) padding-box,
-    linear-gradient(135deg, #60a5fa, #a78bfa, #34d399) border-box;
-  box-shadow: 0 0 25px rgba(99,102,241,0.2);
-}
-
-/* TITLE FIX */
-.card h3 {
-  margin-top: 0;
-  margin-right: 40px;
-  word-break: break-word;
-}
-
-/* BADGES */
-.gradeBadge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 6px 10px;
-  border-radius: 10px;
-  font-weight: bold;
-  color: black;
-}
-
-.gold {
-  background: linear-gradient(145deg, #ffd700, #ffb300);
-}
-
-.silver {
-  background: linear-gradient(145deg, #d1d5db, #9ca3af);
-}
-
-.bronze {
-  background: linear-gradient(145deg, #cd7f32, #b45309);
-}
-
-/* PROFIT BOX */
-.profitBox {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.25);
-}
-
-/* MODAL */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modalBox {
-  background: #1f2937;
-  padding: 20px;
-  border-radius: 12px;
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* ===================== */
-/* CLEAN PARTNER SPLIT UI */
-/* ===================== */
-
-.splitBox {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 10px;
-
-  background: rgba(0,0,0,0.18);
-  border: 1px solid rgba(255,255,255,0.06);
-
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.splitBox p {
-  margin: 0;
-  font-weight: 600;
-  opacity: 0.9;
-}
-
-.splitRow {
-  display: flex;
-  gap: 10px;
-}
-
-.splitRow div {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.splitRow span {
-  font-size: 12px;
-  opacity: 0.6;
-}
-
-.splitRow input {
+.sidebar input {
   width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
-
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.04);
-
+  padding: 11px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.75);
   color: white;
   outline: none;
 }
 
-.splitRow input:focus {
-  border: 1px solid rgba(99,102,241,0.6);
-  box-shadow: 0 0 10px rgba(99,102,241,0.25);
+.sidebar input::placeholder,
+.modalBox input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.sidebar button,
+.uploadBtn {
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+.addCardBtn {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(147,197,253,0.95), transparent 28%),
+    radial-gradient(circle at 82% 25%, rgba(196,181,253,0.88), transparent 30%),
+    linear-gradient(135deg, #2563eb, #6366f1, #a855f7) !important;
+  box-shadow: 0 0 18px rgba(147,197,253,0.18);
+  transition: 0.2s ease;
+}
+
+.addCardBtn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 28px rgba(99,102,241,0.28),
+    0 0 24px rgba(196,181,253,0.2);
+}
+
+.backgroundBox {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.uploadBtn {
+  background: transparent;
+  padding: 4px 0;
+  border-radius: 0;
+  font-size: 12px;
+  opacity: 0.72;
+}
+
+.uploadBtn:hover {
+  opacity: 1;
+  color: #93c5fd;
+}
+
+.removeBg {
+  background: transparent !important;
+  color: #fb7185 !important;
+  padding: 4px 0 !important;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.removeBg:hover {
+  opacity: 1;
+}
+
+/* Profile dropdown */
+
+.profileDropdownWrap {
+  position: relative;
+}
+
+.profilePill {
+  width: 100%;
+  padding: 9px 10px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.07) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: white;
+  transition: 0.2s ease;
+}
+
+.profilePill:hover {
+  transform: translateY(-2px);
+  background: rgba(147,197,253,0.12) !important;
+  border-color: rgba(147,197,253,0.35) !important;
+  box-shadow: 0 0 22px rgba(147,197,253,0.12);
+}
+
+.profileIcon {
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #93c5fd, #c4b5fd);
+  color: #08111f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+}
+
+.profileIcon.big {
+  width: 42px;
+  height: 42px;
+}
+
+.profileArrow {
+  margin-left: auto;
+  opacity: 0.7;
+}
+
+.profileDropdown {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  width: 100%;
+  padding: 13px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(255,255,255,0.13);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.42);
+  z-index: 30;
+  animation: dropdownIn 0.18s ease both;
+}
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.profileDropHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.profileDropHeader p {
+  margin: 0;
+  font-weight: 900;
+}
+
+.profileDropHeader span {
+  font-size: 11px;
+  opacity: 0.65;
+  word-break: break-all;
+}
+
+.dropdownTextBtn,
+.dropdownSignOut {
+  background: transparent !important;
+  padding: 7px 0 !important;
+  text-align: left !important;
+  border-radius: 0 !important;
+  font-size: 13px;
+  box-shadow: none !important;
+}
+
+.dropdownTextBtn {
+  color: #93c5fd !important;
+}
+
+.dropdownTextBtn:hover {
+  color: #c4b5fd !important;
+}
+
+.dropdownSignOut {
+  color: #fb7185 !important;
+}
+
+.dropdownSignOut:hover {
+  color: #ef4444 !important;
+}
+
+.usernameEditBox {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.usernameEditBox input {
+  flex: 1;
+}
+
+.usernameEditBox button {
+  width: auto !important;
+  padding: 0 12px !important;
+  background: rgba(96,165,250,0.8) !important;
+}
+
+.partnerBox {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.partnerBox h3 {
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+.partnerBox p {
+  margin: 6px 0;
+  text-align: center;
+  font-weight: 700;
+}
+
+.splitBox {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.splitBox p {
+  margin-bottom: 8px;
+}
+
+.splitRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.splitRow span {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.main {
+  width: 100%;
+  min-width: 0;
+  height: 100vh;
+  padding: 18px 22px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dashboard {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.dashboard div {
+  padding: 14px;
+  border-radius: 16px;
+  text-align: center;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(14px);
+}
+
+.dashboard span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.75;
+  margin-bottom: 5px;
+}
+
+.dashboard b {
+  display: block;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.filters button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.85);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.grid {
+  width: 100%;
+  max-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(285px, 320px));
+  gap: 18px;
+  align-items: start;
+  justify-content: start;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  min-height: 190px;
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  text-align: center;
+  animation: fadeUp 0.35s ease both;
+}
+
+.hoverLift {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.hoverLift:hover {
+  transform: translateY(-4px);
+  border-color: rgba(147,197,253,0.35);
+  box-shadow:
+    0 22px 60px rgba(0,0,0,0.34),
+    0 0 28px rgba(147,197,253,0.13);
+}
+
+.holdingCard {
+  border-color: rgba(34, 197, 94, 0.8);
+  box-shadow:
+    0 0 15px rgba(34, 197, 94, 0.16),
+    0 20px 50px rgba(0,0,0,0.25);
+}
+
+.soldCard {
+  border-color: rgba(239, 68, 68, 0.82);
+  box-shadow:
+    0 0 15px rgba(239, 68, 68, 0.16),
+    0 20px 50px rgba(0,0,0,0.25);
+}
+
+.cardName {
+  margin-top: 10px;
+  margin-bottom: 18px;
+  font-size: 20px;
+  padding-right: 56px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.card p {
+  margin: 6px 0;
+  font-weight: 700;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gradeBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  min-width: 42px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  font-weight: 900;
+  color: #111;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.35);
+}
+
+.gold {
+  background: linear-gradient(145deg, #fff4a3, #ffd700, #b8860b);
+  box-shadow:
+    0 0 18px rgba(255, 215, 0, 0.95),
+    inset 0 1px 4px rgba(255,255,255,0.7);
+}
+
+.silver {
+  background: linear-gradient(145deg, #ffffff, #c0c0c0, #737373);
+  box-shadow:
+    inset 0 1px 4px rgba(255,255,255,0.8),
+    0 0 10px rgba(220,220,220,0.25);
+}
+
+.bronze {
+  background: linear-gradient(145deg, #f0b36a, #cd7f32, #7c3f12);
+  box-shadow:
+    inset 0 1px 4px rgba(255,255,255,0.45);
+}
+
+.glow {
+  box-shadow:
+    0 0 18px rgba(255, 215, 0, 0.95),
+    0 0 35px rgba(255, 215, 0, 0.45),
+    inset 0 1px 4px rgba(255,255,255,0.7);
+}
+
+.profitBox {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(2, 6, 23, 0.55);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.profitBox h3 {
+  margin: 0 0 10px;
+  font-size: 19px;
+}
+
+.actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+}
+
+.actions button {
+  flex: 1;
+  padding: 9px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(51, 65, 85, 0.9);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.actions button:hover,
+.filters button:hover {
+  background: rgba(96, 165, 250, 0.85);
+}
+
+.trashBtn:hover {
+  background: rgba(239, 68, 68, 0.95) !important;
+  color: white;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
+}
+
+/* Login page */
+
+.loginTitle {
+  text-align: center;
+  font-size: 42px;
+  font-weight: 950;
+  line-height: 1.2;
+  letter-spacing: -1.2px;
+  margin: 4px 0 22px;
+  padding-bottom: 4px;
+  background: linear-gradient(135deg, #93c5fd, #c4b5fd, #f0abfc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: titleIn 0.8s ease both;
+}
+@keyframes titleIn {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.96);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background:
+    radial-gradient(circle at top left, rgba(147,197,253,0.25), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(196,181,253,0.2), transparent 34%),
+    rgba(0,0,0,0.68);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalBox {
+  width: 330px;
+  padding: 22px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.48),
+    0 0 35px rgba(147, 197, 253, 0.14);
+}
+
+.modalBox:hover {
+  transform: translateY(-5px);
+  border-color: rgba(147, 197, 253, 0.4);
+  box-shadow:
+    0 35px 95px rgba(0, 0, 0, 0.55),
+    0 0 45px rgba(147, 197, 253, 0.24);
+}
+
+.modalBox h3 {
+  text-align: center;
+}
+
+.modalBox input {
+  padding: 11px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(30, 41, 59, 0.9);
+  color: white;
+}
+
+.modalBox button {
+  padding: 11px;
+  border-radius: 10px;
+  border: none;
+  color: white;
+  font-weight: 800;
+  background: #2563eb;
+  cursor: pointer;
+}
+
+.primaryAuthBtn {
+  background: linear-gradient(135deg, #2563eb, #6366f1, #8b5cf6) !important;
+  box-shadow: 0 8px 24px rgba(99,102,241,0.25);
+}
+
+.googleAuthBtn {
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+}
+
+.switchAuthBtn {
+  background: transparent !important;
+  color: #93c5fd !important;
+  box-shadow: none !important;
+}
+
+.authError {
+  color: #fb7185;
+  font-size: 12px;
+  text-align: center;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  html,
+  body {
+    overflow: auto;
+  }
+
+  .app {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+  }
+
+  .main {
+    height: auto;
+  }
+
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+/* TRIUMPH-STYLE LOGIN PAGE */
+
+.authApp {
+  background:
+    radial-gradient(circle at 20% 15%, rgba(80, 120, 255, 0.35), transparent 32%),
+    radial-gradient(circle at 80% 25%, rgba(170, 110, 255, 0.28), transparent 35%),
+    radial-gradient(circle at 50% 90%, rgba(40, 220, 255, 0.18), transparent 38%),
+    linear-gradient(135deg, #050816, #07111f 45%, #020617);
+}
+
+.authApp::after {
+  background:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+    rgba(2, 6, 23, 0.64);
+  background-size: 42px 42px;
+}
+
+.authBox {
+  width: 390px;
+  padding: 30px;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(21, 32, 58, 0.92), rgba(8, 13, 28, 0.96));
+  border: 1px solid rgba(147, 197, 253, 0.22);
+  box-shadow:
+    0 35px 100px rgba(0, 0, 0, 0.65),
+    0 0 55px rgba(99, 102, 241, 0.22);
+}
+
+.authBox:hover {
+  transform: translateY(-6px);
+  border-color: rgba(196, 181, 253, 0.45);
+  box-shadow:
+    0 45px 120px rgba(0, 0, 0, 0.72),
+    0 0 70px rgba(147, 197, 253, 0.28);
+}
+
+.loginTitle {
+  font-size: 46px;
+  line-height: 1.18;
+  padding-bottom: 6px;
+  margin-bottom: 22px;
+  font-weight: 950;
+  letter-spacing: -1.5px;
+  background: linear-gradient(135deg, #7dd3fc, #a5b4fc, #d8b4fe);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.primaryAuthBtn {
+  background:
+    linear-gradient(135deg, #38bdf8, #6366f1 48%, #a855f7) !important;
+  box-shadow:
+    0 12px 32px rgba(99, 102, 241, 0.32),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+.primaryAuthBtn:hover {
+  background:
+    linear-gradient(135deg, #7dd3fc, #818cf8 48%, #c084fc) !important;
+}
+
+.googleAuthBtn {
+  background: rgba(255,255,255,0.07) !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
+}
+
+.googleAuthBtn:hover {
+  background: rgba(147,197,253,0.14) !important;
+}
+
+.switchAuthBtn {
+  color: #a5b4fc !important;
+}
+/* Make top dashboard not grow on hover */
+.dashboard .hoverLift:hover {
+  transform: none !important;
+}
+
+/* Sidebar title like login title */
+.appTitle {
+  font-size: 28px;
+  font-weight: 950;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #7dd3fc, #a5b4fc, #d8b4fe);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.holdingCard:hover {
+  border-color: rgba(34, 197, 94, 0.95) !important;
+  box-shadow:
+    0 0 22px rgba(34, 197, 94, 0.28),
+    0 22px 60px rgba(0,0,0,0.34) !important;
+}
+
+.soldCard:hover {
+  border-color: rgba(239, 68, 68, 0.95) !important;
+  box-shadow:
+    0 0 22px rgba(239, 68, 68, 0.28),
+    0 22px 60px rgba(0,0,0,0.34) !important;
+}
+
+.sellBtn {
+  background: rgba(34, 197, 94, 0.85) !important;
+}
+
+.sellBtn:hover {
+  background: rgba(34, 197, 94, 1) !important;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.35);
+}
+
+.soldFilter:hover {
+  background: rgba(239, 68, 68, 0.85) !important;
+  border-color: rgba(239, 68, 68, 0.95) !important;
+}
+
+.holdingFilter:hover {
+  background: rgba(34, 197, 94, 0.85) !important;
+  border-color: rgba(34, 197, 94, 0.95) !important;
 }
